@@ -1,12 +1,20 @@
 import React from 'react';
-import ListItem from './ListItem.jsx';
+import MusicEntry from './MusicEntry.jsx';
 
-const List = (props) => (
-  <div>
-    <h4> List Component </h4>
-    There are { props.items.length } items.
-    { props.items.map(item => <ListItem item={item}/>)}
-  </div>
-)
+const List = (props) => {
+
+
+	return (
+		<div>
+  		<ul>
+  			{props.list.map((music)=>{
+  				return <MusicEntry music={music} />
+  			})}
+			</ul>
+		</div>
+
+	);
+
+}
 
 export default List;
