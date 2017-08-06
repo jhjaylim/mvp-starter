@@ -7,9 +7,7 @@ const List = (props) => {
 	return (
 		<div>
   		<ul>
-  			{props.list.map((music)=>{
-  				return <MusicEntry music={music} />
-  			})}
+  			List
 			</ul>
 		</div>
 

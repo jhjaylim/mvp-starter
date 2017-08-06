@@ -3,8 +3,11 @@ import React from 'react';
 const Player = (props) => {
   return (
   	<div>
-	  {props.music}
-  	</div>
+	  Player
+	  {console.log(props)};
+	  <iframe src={props.music.url}></iframe>
+
+	</div>
   );
 };
 

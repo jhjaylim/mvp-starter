@@ -9775,9 +9775,7 @@ var List = function List(props) {
 		_react2.default.createElement(
 			'ul',
 			null,
-			props.list.map(function (music) {
-				return _react2.default.createElement(_MusicEntry2.default, { music: music });
-			})
+			'List'
 		)
 	);
 };
@@ -9792,7 +9790,7 @@ exports.default = List;
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+		value: true
 });
 
 var _react = __webpack_require__(20);
@@ -9802,11 +9800,14 @@ var _react2 = _interopRequireDefault(_react);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Player = function Player(props) {
-  return _react2.default.createElement(
-    'div',
-    null,
-    props.music
-  );
+		return _react2.default.createElement(
+				'div',
+				null,
+				'Player',
+				console.log(props),
+				';',
+				_react2.default.createElement('iframe', { src: props.music.url })
+		);
 };
 
 exports.default = Player;
@@ -9826,19 +9827,27 @@ var _react = __webpack_require__(20);
 
 var _react2 = _interopRequireDefault(_react);
 
+var _jquery = __webpack_require__(85);
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+var _credentials = __webpack_require__(189);
+
+var _credentials2 = _interopRequireDefault(_credentials);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Search = function Search(props) {
 
 	return _react2.default.createElement(
-		"div",
-		{ id: "search" },
+		'div',
+		{ id: 'search' },
+		'Search:',
+		_react2.default.createElement('input', { id: 'input', type: 'text' }),
 		_react2.default.createElement(
-			"form",
-			null,
-			"Search:",
-			_react2.default.createElement("input", { type: "text", name: "search" }),
-			_react2.default.createElement("input", { type: "submit", value: "Submit" })
+			'button',
+			{ onClick: props.handler },
+			'Search'
 		)
 	);
 };
@@ -20175,6 +20184,10 @@ var _Player = __webpack_require__(83);
 
 var _Player2 = _interopRequireDefault(_Player);
 
+var _credentials = __webpack_require__(189);
+
+var _credentials2 = _interopRequireDefault(_credentials);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -20192,33 +20205,80 @@ var App = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 
     _this.state = {
-      list: ['music1', 'music2', 'music3'],
-      music: 'music'
+      list: [],
+      music: {
+        url: 'https://open.spotify.com/embed?uri=spotify:album:7mgdTKTCdfnLoa1HXHvLYM',
+        artist: undefined,
+        title: undefined
+      }
     };
+    _this.onClickHandler = function (event) {
+      console.log(event);
+      _this.search();
+    };
+
     return _this;
   }
 
-  // componentDidMount() {
-  //   // $.ajax({
-  //   //   url: '/items', 
-  //   //   success: (data) => {
-  //   //     this.setState({
-  //   //       items: data
-  //   //     })
-  //   //   },
-  //   //   error: (err) => {
-  //   //     console.log('err', err);
-  //   //   }
-  //   // });
-  // }
-
   _createClass(App, [{
+    key: 'search',
+    value: function search(input) {
+      var _this2 = this;
+
+      var query = (0, _jquery2.default)('#input').val();
+      var token = 'BQAY_2UMqCW45L2Yvzn0VmLxg_vLPzZPGVfoK-p1wmb9giQ5nmZLGgXw7Ptg1C9hdkR735TQhf-HARsyuyjlf5FlcHPSrQhBk9xb0jVGZU1cmqmdZ-WxYRYX8NzcbGNR5xiylxUpAT5DhOh86RfqnfYYkhGZ&refresh_token=AQAkgwT6JdWRU-hu6SvjYiHAXt8tx0jV73sCLfwTCj8fR2HeKTWIq_Xju7Goku_c7OJPM-s0Nek5JG7CQpIZozFNp-4WZ_Ld24W6QRMqqXeOwk6bcWouRPc0UJF9GDw5EsY';
+      var searchUrl = 'https://api.spotify.com/v1/search?type=track&query=' + query + '&access_token=' + token;
+      console.log(query);
+      var baseUrl = 'https://open.spotify.com/embed?uri=';
+      _jquery2.default.ajax({
+        url: searchUrl,
+        type: 'GET',
+        success: function success(data) {
+
+          // artist, title
+          console.log(data.tracks.items);
+          _this2.setState({
+            list: data.tracks.items.map(function (item) {
+              return {
+                url: baseUrl + item.uri + '&autoplay=true',
+                artist: item.artists[0].name,
+                title: item.name
+              };
+            })
+
+          });
+          _this2.setState({
+            music: _this2.state.list[0]
+          });
+          console.log(_this2.state.list);
+        },
+        error: function error(err) {
+          console.log('err', err);
+        }
+      });
+    }
+
+    // componentDidMount() {
+    //   // $.ajax({
+    //   //   url: '/items', 
+    //   //   success: (data) => {
+    //   //     this.setState({
+    //   //       items: data
+    //   //     })
+    //   //   },
+    //   //   error: (err) => {
+    //   //     console.log('err', err);
+    //   //   }
+    //   // });
+    // }
+
+  }, {
     key: 'render',
     value: function render() {
       return _react2.default.createElement(
         'div',
         null,
-        _react2.default.createElement(_Search2.default, null),
+        _react2.default.createElement(_Search2.default, { handler: this.onClickHandler }),
         _react2.default.createElement(_Player2.default, { music: this.state.music }),
         _react2.default.createElement(_List2.default, { list: this.state.list })
       );
@@ -32845,6 +32905,24 @@ function traverseAllChildren(children, callback, traverseContext) {
 
 module.exports = traverseAllChildren;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 189 */
+/***/ (function(module, exports) {
+
+var credentials = {
+  client_id: '459a13337a7d4e798529a40795b3e080',
+  client_secret: 'baa88e1a58584f81b9afc78923631333',
+  token: 'access_token=BQCpJXDbuG-pkXDp1_0LEUiX69H8-yqMl-mWl_oCluU7mRY77x8BZtRNkwy3QQOjYdKpwJQpUvQ74H6KDbbGt7cesTBTsahxjFEX453_ENKFDmElPsM5SDNBlACBYcnbuin_5CVSDspEYp7ezDsssjDMum1a&refresh_token=AQCMk__7746impeu--RHRK0VjYXWWErQk51lqz4qO7PxL8ZrorNpIjcdtVm_uRRBwSO2Z19qlsHb_g56fB36w1FBTF8tGFi8Xzk58aDyzv-kpxksbwcAtO6k4z2O3vPeN-Y'
+
+
+
+
+
+}
+  module.exports.credentials = credentials;
+
+
 
 /***/ })
 /******/ ]);
