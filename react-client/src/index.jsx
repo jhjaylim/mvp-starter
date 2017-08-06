@@ -28,7 +28,7 @@ class App extends React.Component {
   search(input) {
 
     var query = $('#input').val();
-    var token = 'BQAY_2UMqCW45L2Yvzn0VmLxg_vLPzZPGVfoK-p1wmb9giQ5nmZLGgXw7Ptg1C9hdkR735TQhf-HARsyuyjlf5FlcHPSrQhBk9xb0jVGZU1cmqmdZ-WxYRYX8NzcbGNR5xiylxUpAT5DhOh86RfqnfYYkhGZ&refresh_token=AQAkgwT6JdWRU-hu6SvjYiHAXt8tx0jV73sCLfwTCj8fR2HeKTWIq_Xju7Goku_c7OJPM-s0Nek5JG7CQpIZozFNp-4WZ_Ld24W6QRMqqXeOwk6bcWouRPc0UJF9GDw5EsY';
+    var token = 'BQCmtIr5oqlax_AuukSod_gLbjOBSCnFqMqC5b2ZrofT8KQViNkiYCEAgEcj2JY7M7WbCksRmSb1NIp5wRpTUIccoJlT669PdVtwflT6EdXQYmtwamwgNYEXJKsoNVE1I59Sry4IAJ5L81-2YBYNPpclxkX8&refresh_token=AQC-b02kZ6pw-GRu8yUv5RpgiEw3H9X43CNJvXAJ4xH53-07S0IGe_q7ChJV7sAB8lmak_BPB3j_V1HgrMg11jct2brOm2IZOly2_llgyV_cy1c3L5hrm3BdfI_bU4ZNMT0';
     var searchUrl = `https://api.spotify.com/v1/search?type=track&query=${query}&access_token=${token}`;
     console.log(query);
     var baseUrl = 'https://open.spotify.com/embed?uri=';
@@ -36,8 +36,6 @@ class App extends React.Component {
       url: searchUrl, 
       type: 'GET',
       success: (data) => {
-        
-        // artist, title
         console.log(data.tracks.items);
         this.setState(
           {
@@ -49,7 +47,6 @@ class App extends React.Component {
                 title: item.name
               };
             })
-            
           }
         );
         this.setState(
@@ -57,7 +54,6 @@ class App extends React.Component {
             music: this.state.list[0]
           });
         console.log(this.state.list);
-
       },
       error: (err) => {
         console.log('err', err);
