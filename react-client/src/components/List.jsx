@@ -6,7 +6,7 @@ const List = (props) => {
 		<div>
   		<ul>
   			{props.list.map((music)=>{
-  				return (<MusicEntry music={music} handler={props.handler} add={props.add} />)
+  				return (<MusicEntry music={music} change={props.change} add={props.add} />)
   			})}
 			</ul>
 		</div>

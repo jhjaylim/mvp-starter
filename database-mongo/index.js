@@ -12,7 +12,6 @@ db.once('open', function() {
 });
 
 var librarySchema = mongoose.Schema({
-  id: Number,
   title: String,
   artist: String,
   url: String,
@@ -32,3 +31,4 @@ var selectAll = function(callback) {
 };
 
 module.exports.selectAll = selectAll;
+module.exports.Library = Library;

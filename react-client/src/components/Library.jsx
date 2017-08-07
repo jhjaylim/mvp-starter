@@ -1,11 +1,14 @@
 import React from 'react';
+import LibraryEntry from './LibraryEntry.jsx';
 
 const Library = (props) => {
 	return (
 		<div>
-		Library
+			<h1 onClick={props.load}>Library</h1>
   		<ul>
-
+  			{props.list.map((music)=>{
+  				return (<LibraryEntry music={music} change={props.handler} remove={props.remove} />)
+  			})}
 			</ul>
 		</div>
 	);
@@ -13,7 +16,3 @@ const Library = (props) => {
 
 export default Library;
 
-  			// {props.list.map((music)=>{
-  			// 	return (<LibraryEntry music={music} handler={props.handler}/>)
-
-  			// })}

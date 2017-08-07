@@ -16,49 +16,66 @@ class App extends React.Component {
         url: 'https://open.spotify.com/embed?uri=spotify:album:7mgdTKTCdfnLoa1HXHvLYM',
         artist: undefined,
         title: undefined
-      }
+      },
+      library: []
     };
     this.onSearchHandler = (event) => {
       
       this.search();
     };
-    this.loadLibrary = ( event ) => {
+    this.loadLibrary = () => {
       console.log('loading');
       $.ajax({
         url: '/library',
         type: 'GET',
         success: (data) => {
           console.log('success');
-          console.log(data);
+          console.log(Array.isArray(data));
+
+
+          this.setState({
+            library: data
+          });
         },
         error: (err) =>{
           console.log(err);
         }
       });
 
-
-
     };
     this.addToLibrary = (music) => {
-      console.log('addToLibrary!!!');
-      console.log(music);
+      console.log('Add to library!');
       $.ajax({
         url: '/library',
         type: 'POST',
         data: music,
         success: (data) => {
           console.log('success');
+          this.loadLibrary();
         },
         error: (err) =>{
           console.log(err);
         }
-
-
       });
-
     };
     this.changeSong = (music) => {
+      console.log("Change Song: ", music);
       this.setState({music: music});
+    };
+    this.removeFromLibrary = (music) => {
+      console.log("Remove: ", music);
+      $.ajax({
+        url: '/delete',
+        type: 'POST',
+        data: music,
+        success: (data) => {
+          console.log('success');
+          this.loadLibrary();
+        },
+        error: (err) =>{
+          console.log(err);
+        }
+      });
     };
 
   }
@@ -66,7 +83,7 @@ class App extends React.Component {
   search(input) {
 
     var query = $('#input').val() || 'Hello' ;
-    var token = 'BQDYBxt85h5FVPrWadmmglUgiZbhYZWgbIuOifUUuZbnPMhcKX3OppLSxL-0jd--uQNL-OAKEcVf-k_0ooCr6dl7bUDp80KV5_gAjYJLphj0E_52n4avKcAeT2Lj4dchOUZvqLCeOe7oHXnxY9IeveYrSYf-&refresh_token=AQDSALB98LQmqLvBr7hvh3dLMEpJKST--VHDTP5cs1hYkwcokO9NJKP0604HK-dWzE38HwAKKnZ75osa9cm8FFumMCXMPFvsWHQiASLvfiM3kTgGj-XrgLMcL9YRvuNo5Cs';
+    var token = 'BQAuwO3VoSyups4z-wZSGIOQK3cTC0naMPwfB7DERJ6CY74dw14I69nhMRIeI4yZWOdv2hKGSy_BdhShZjp4N4pcYKGu9efLIYjI1REm00SE6atFwLzicutF-cjC9s4lRKcWO9dqCxh5NGxDJI3srI2mm9lx&refresh_token=AQBJLDXKyFo21egzzKhSV3IzstdTJz9AV2ppTLDEj_A7Na_Ncomr7rbOHT3O26LYTxUkamikSSDhGo1zaxHKBpoQPjQRCo9T0kWdkrsCpLPyX4Am5y5frgVmHqhaI2-MPSw';
     var searchUrl = `https://api.spotify.com/v1/search?type=track&query=${query}&access_token=${token}`;
     var baseUrl = 'https://open.spotify.com/embed?uri=';
     $.ajax({
@@ -81,7 +98,7 @@ class App extends React.Component {
             list: data.tracks.items
             .map((item)=>{
               return {
-                url: baseUrl+item.uri + '&autoplay=true',
+                url: baseUrl+item.uri,
                 artist: item.artists[0].name,
                 title: item.name,
                 fullUrl: item.external_urls.spotify
@@ -103,33 +120,32 @@ class App extends React.Component {
 
   }
 
-  // componentDidMount() {
-  //   // $.ajax({
-  //   //   url: '/items', 
-  //   //   success: (data) => {
-  //   //     this.setState({
-  //   //       items: data
-  //   //     })
-  //   //   },
-  //   //   error: (err) => {
-  //   //     console.log('err', err);
-  //   //   }
-  //   // });
-  // }
+  componentDidMount() {
+    $.ajax({
+      url: '/library',
+      type: 'GET',
+      success: (data) => {
+        console.log('success');
+        console.log(data);
+        this.setState({
+          library: data
+        });
+        console.log("Library: ", this.state.library);
+      },
+      error: (err) =>{
+        console.log(err);
+      }
+    });
+  }
 
   render() {
     return (
       <div>
         <Search handler={this.onSearchHandler}/>
-       
         <Player music={this.state.music} handler={this.addToLibrary}/>
-
-        <List list={this.state.list} handler={this.changeSong} add={this.addToLibrary} />
-
-        <Library list={this.state.library} load={this.loadLibrary}/>
-
-
-
+        <List list={this.state.list} change={this.changeSong} add={this.addToLibrary}/>
+        <Library list={this.state.library} load={this.loadLibrary} 
+          handler={this.changeSong} remove={this.removeFromLibrary}/>
       </div>
 
     );
