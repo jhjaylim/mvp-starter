@@ -20046,14 +20046,15 @@ var _MusicEntry2 = _interopRequireDefault(_MusicEntry);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var List = function List(props) {
-
 	return _react2.default.createElement(
 		'div',
 		null,
 		_react2.default.createElement(
 			'ul',
 			null,
-			'List'
+			props.list.map(function (music) {
+				return _react2.default.createElement(_MusicEntry2.default, { music: music, handler: props.handler, add: props.add });
+			})
 		)
 	);
 };
@@ -20084,7 +20085,7 @@ var Player = function Player(props) {
 				_react2.default.createElement('iframe', { src: props.music.url, height: '80px' }),
 				_react2.default.createElement(
 						'h3',
-						null,
+						{ onClick: props.handler },
 						props.music.title
 				),
 				_react2.default.createElement(
@@ -20170,7 +20171,27 @@ var MusicEntry = function MusicEntry(props) {
   return _react2.default.createElement(
     'li',
     null,
-    props.music
+    _react2.default.createElement(
+      'div',
+      { onClick: function onClick() {
+          props.handler(props.music);
+        } },
+      'Title: ',
+      props.music.title
+    ),
+    _react2.default.createElement(
+      'div',
+      null,
+      'Artist: ',
+      props.music.artist
+    ),
+    _react2.default.createElement(
+      'div',
+      { onClick: function onClick() {
+          props.add(props.music);
+        } },
+      'Add to Library!'
+    )
   );
 };
 
@@ -20209,6 +20230,10 @@ var _Player = __webpack_require__(85);
 
 var _Player2 = _interopRequireDefault(_Player);
 
+var _Library = __webpack_require__(190);
+
+var _Library2 = _interopRequireDefault(_Library);
+
 var _credentials = __webpack_require__(51);
 
 var _credentials2 = _interopRequireDefault(_credentials);
@@ -20237,9 +20262,42 @@ var App = function (_React$Component) {
         title: undefined
       }
     };
-    _this.onClickHandler = function (event) {
-      console.log(event);
+    _this.onSearchHandler = function (event) {
+
       _this.search();
+    };
+    _this.loadLibrary = function (event) {
+      console.log('loading');
+      _jquery2.default.ajax({
+        url: '/library',
+        type: 'GET',
+        success: function success(data) {
+          console.log('success');
+          console.log(data);
+        },
+        error: function error(err) {
+          console.log(err);
+        }
+      });
+    };
+    _this.addToLibrary = function (music) {
+      console.log('addToLibrary!!!');
+      console.log(music);
+      _jquery2.default.ajax({
+        url: '/library',
+        type: 'POST',
+        data: music,
+        success: function success(data) {
+          console.log('success');
+        },
+        error: function error(err) {
+          console.log(err);
+        }
+
+      });
+    };
+    _this.changeSong = function (music) {
+      _this.setState({ music: music });
     };
 
     return _this;
@@ -20250,22 +20308,24 @@ var App = function (_React$Component) {
     value: function search(input) {
       var _this2 = this;
 
-      var query = (0, _jquery2.default)('#input').val();
-      var token = 'BQCmtIr5oqlax_AuukSod_gLbjOBSCnFqMqC5b2ZrofT8KQViNkiYCEAgEcj2JY7M7WbCksRmSb1NIp5wRpTUIccoJlT669PdVtwflT6EdXQYmtwamwgNYEXJKsoNVE1I59Sry4IAJ5L81-2YBYNPpclxkX8&refresh_token=AQC-b02kZ6pw-GRu8yUv5RpgiEw3H9X43CNJvXAJ4xH53-07S0IGe_q7ChJV7sAB8lmak_BPB3j_V1HgrMg11jct2brOm2IZOly2_llgyV_cy1c3L5hrm3BdfI_bU4ZNMT0';
+      var query = (0, _jquery2.default)('#input').val() || 'Hello';
+      var token = 'BQDYBxt85h5FVPrWadmmglUgiZbhYZWgbIuOifUUuZbnPMhcKX3OppLSxL-0jd--uQNL-OAKEcVf-k_0ooCr6dl7bUDp80KV5_gAjYJLphj0E_52n4avKcAeT2Lj4dchOUZvqLCeOe7oHXnxY9IeveYrSYf-&refresh_token=AQDSALB98LQmqLvBr7hvh3dLMEpJKST--VHDTP5cs1hYkwcokO9NJKP0604HK-dWzE38HwAKKnZ75osa9cm8FFumMCXMPFvsWHQiASLvfiM3kTgGj-XrgLMcL9YRvuNo5Cs';
       var searchUrl = 'https://api.spotify.com/v1/search?type=track&query=' + query + '&access_token=' + token;
-      console.log(query);
       var baseUrl = 'https://open.spotify.com/embed?uri=';
       _jquery2.default.ajax({
         url: searchUrl,
         type: 'GET',
         success: function success(data) {
           console.log(data.tracks.items);
+          data.tracks.items = data.tracks.items.slice(0, 10);
+
           _this2.setState({
             list: data.tracks.items.map(function (item) {
               return {
                 url: baseUrl + item.uri + '&autoplay=true',
                 artist: item.artists[0].name,
-                title: item.name
+                title: item.name,
+                fullUrl: item.external_urls.spotify
               };
             })
           });
@@ -20300,9 +20360,10 @@ var App = function (_React$Component) {
       return _react2.default.createElement(
         'div',
         null,
-        _react2.default.createElement(_Search2.default, { handler: this.onClickHandler }),
-        _react2.default.createElement(_Player2.default, { music: this.state.music }),
-        _react2.default.createElement(_List2.default, { list: this.state.list })
+        _react2.default.createElement(_Search2.default, { handler: this.onSearchHandler }),
+        _react2.default.createElement(_Player2.default, { music: this.state.music, handler: this.addToLibrary }),
+        _react2.default.createElement(_List2.default, { list: this.state.list, handler: this.changeSong, add: this.addToLibrary }),
+        _react2.default.createElement(_Library2.default, { list: this.state.library, load: this.loadLibrary })
       );
     }
   }]);
@@ -32927,6 +32988,39 @@ function traverseAllChildren(children, callback, traverseContext) {
 
 module.exports = traverseAllChildren;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 190 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _react = __webpack_require__(20);
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Library = function Library(props) {
+	return _react2.default.createElement(
+		'div',
+		null,
+		'Library',
+		_react2.default.createElement('ul', null)
+	);
+};
+
+exports.default = Library;
+
+// {props.list.map((music)=>{
+// 	return (<LibraryEntry music={music} handler={props.handler}/>)
+
+// })}
 
 /***/ })
 /******/ ]);
